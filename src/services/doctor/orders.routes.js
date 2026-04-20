@@ -1,30 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const orderController = require("./order.controller");
-const { authMiddleware, doctorMiddleware } = require('../../middlewares/auth');
+const { authMiddleware, doctorMiddleware } = require("../../middlewares/auth");
 
-// جميع routes تحتاج مصادقة ودور دكتور
 router.use(authMiddleware, doctorMiddleware);
 
-// إنشاء طلب جديد
+// ========== Order CRUD ==========
 router.post("/orders", orderController.createOrder);
-
-// جلب جميع طلبات الدكتور
 router.get("/orders", orderController.getDoctorOrders);
-
-// إحصائيات الدكتور
 router.get("/orders/stats", orderController.getDoctorStats);
-
-// جلب طلب معين
 router.get("/orders/:orderId", orderController.getDoctorOrderById);
-
-// تحديث الطلب
 router.put("/orders/:orderId", orderController.updateDoctorOrder);
-
-// إرسال طلب للمعمل
 router.post("/orders/:orderId/send-to-lab", orderController.sendToLab);
-
-// تأكيد استلام الطلب من المعمل
 router.post("/orders/:orderId/confirm", orderController.confirmLabReady);
+
+// ========== Order Filters ==========
+router.get("/orders/date", orderController.getOrdersByDate);           // ?startDate=2024-01-01&endDate=2024-12-31
+router.get("/orders/status/:status", orderController.getOrdersByStatus); // pending, finished, underway, docready
+
+// ========== Lab Management for Doctor ==========
+router.get("/labs", orderController.getDoctorLabs);
+router.get("/labs/:labId", orderController.getDoctorLabById);
+router.get("/labs/:labId/contracts", orderController.getDoctorLabContracts);
+router.get("/labs/:labId/contract", orderController.getMyContract);    // جلب عقد الدكتور مع معمل معين
 
 module.exports = router;

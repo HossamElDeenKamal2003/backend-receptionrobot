@@ -70,6 +70,7 @@ const authMiddleware = async (req, res, next) => {
 
 // Middleware للتحقق من دور المعمل (Lab)
 const labMiddleware = (req, res, next) => {
+    console.log("Checking lab middleware for user:", req.user ? req.user : "No user");
     if (!req.user) {
         return res.status(401).json({
             success: false,

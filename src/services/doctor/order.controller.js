@@ -14,6 +14,104 @@ class OrderController {
             });
         }
     }
+     async getDoctorLabs(req, res) {
+        try {
+            const doctorId = req.user.id;
+            console.log("doctorId:", doctorId);
+            const result = await orderService.getDoctorLabs(doctorId);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message || { ar: "خطأ في الخادم", en: "Server error" }
+            });
+        }
+    }
+
+    // جلب معمل معين للدكتور
+    async getDoctorLabById(req, res) {
+        try {
+            const doctorId = req.user.id;
+            const { labId } = req.params;
+            const result = await orderService.getDoctorLabById(doctorId, labId);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message || { ar: "خطأ في الخادم", en: "Server error" }
+            });
+        }
+    }
+// order.controller.js - أضف الدوال دي
+
+// جلب طلبات حسب التاريخ
+async getOrdersByDate(req, res) {
+    try {
+        const doctorId = req.user.id;
+        const { startDate, endDate } = req.query;
+        
+        if (!startDate || !endDate) {
+            return res.status(400).json({
+                success: false,
+                message: { ar: "تاريخ البداية والنهاية مطلوب", en: "Start date and end date are required" }
+            });
+        }
+        
+        const result = await orderService.getDoctorOrdersByDate(doctorId, startDate, endDate);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || { ar: "خطأ في الخادم", en: "Server error" }
+        });
+    }
+}
+
+// جلب طلبات حسب الحالة
+async getOrdersByStatus(req, res) {
+    try {
+        const doctorId = req.user.id;
+        const { status } = req.params;
+        
+        const result = await orderService.getDoctorOrdersByStatus(doctorId, status);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || { ar: "خطأ في الخادم", en: "Server error" }
+        });
+    }
+}
+
+// جلب عقد الدكتور مع معمل
+async getMyContract(req, res) {
+    try {
+        const doctorId = req.user.id;
+        const { labId } = req.params;
+        
+        const result = await orderService.getMyContractWithLab(doctorId, labId);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || { ar: "خطأ في الخادم", en: "Server error" }
+        });
+    }
+}
+    // جلب عقود معمل معين للدكتور
+    async getDoctorLabContracts(req, res) {
+        try {
+            const doctorId = req.user.id;
+            const { labId } = req.params;
+            const result = await orderService.getDoctorLabContracts(doctorId, labId);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message || { ar: "خطأ في الخادم", en: "Server error" }
+            });
+        }
+    }
 
     // جلب طلبات الدكتور
     async getDoctorOrders(req, res) {

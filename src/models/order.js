@@ -5,19 +5,21 @@ const Order = sequelize.define(
   "Order",
   {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,  // ✅ استخدام autoIncrement بدل UUIDV4
       primaryKey: true,
     },
 
-    UID: {
+    uid: {
       type: DataTypes.STRING(255),
       allowNull: false,
+      field: 'uid',
     },
 
-    patientName: {
+    patient_name: {
       type: DataTypes.STRING(255),
       allowNull: false,
+      field: 'patient_name',
       validate: {
         len: [2, 255],
       },
@@ -26,36 +28,43 @@ const Order = sequelize.define(
     age: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      field: 'age',
     },
 
-    teethNo: {
+    teeth_no: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      field: 'teeth_no',
     },
 
     sex: {
       type: DataTypes.STRING(50),
       allowNull: true,
+      field: 'sex',
     },
 
     color: {
       type: DataTypes.STRING(50),
       allowNull: true,
+      field: 'color',
     },
 
     type: {
       type: DataTypes.STRING(255),
       allowNull: false,
+      field: 'type',
     },
 
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
+      field: 'description',
     },
 
     screen: {
       type: DataTypes.TEXT,
       allowNull: true,
+      field: 'screen',
     },
 
     status: {
@@ -74,48 +83,72 @@ const Order = sequelize.define(
         "END(F)"
       ),
       defaultValue: "DocReady(P)",
+      field: 'status',
     },
 
     price: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
+      field: 'price',
     },
 
     paid: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
+      defaultValue: 0,
+      field: 'paid',
     },
 
     lab_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.TEXT,
       allowNull: false,
+      field: 'lab_id',
     },
 
     doc_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.TEXT,
       allowNull: false,
+      field: 'doc_id',
     },
 
     date: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+      field: 'date',
     },
 
     prova: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+      field: 'prova',
     },
 
-    docReady: {
+    doc_ready: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      field: 'doc_ready',
     },
 
-    image: DataTypes.TEXT,
-    image1: DataTypes.TEXT,
-    image2: DataTypes.TEXT,
-    file: DataTypes.TEXT,
-    video: DataTypes.TEXT,
+    image: {
+      type: DataTypes.TEXT,
+      field: 'image',
+    },
+    image1: {
+      type: DataTypes.TEXT,
+      field: 'image1',
+    },
+    image2: {
+      type: DataTypes.TEXT,
+      field: 'image2',
+    },
+    file: {
+      type: DataTypes.TEXT,
+      field: 'file',
+    },
+    video: {
+      type: DataTypes.TEXT,
+      field: 'video',
+    },
   },
   {
     tableName: "orders",
