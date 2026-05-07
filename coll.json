@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Reception Robot API",
-    "description": "API for managing doctors, labs, and orders",
+    "description": "API for managing doctors, labs, orders, and contracts",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "version": "1.0.0"
   },
@@ -10,7 +10,7 @@
       "name": "Auth Endpoints",
       "item": [
         {
-          "name": "Register - Create New User",
+          "name": "Register - Create Doctor",
           "request": {
             "method": "POST",
             "header": [
@@ -22,6 +22,27 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"دكتور أحمد\",\n  \"phone\": \"0791234567\",\n  \"email\": \"ahmed@doctor.com\",\n  \"password\": \"Password123\",\n  \"role\": \"doctor\",\n  \"buildNo\": \"5\",\n  \"floorNo\": \"3\",\n  \"address\": \"عمان، الأردن\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/auth/register",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register - Create Lab",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"معمل الأمل\",\n  \"phone\": \"0781234567\",\n  \"email\": \"lab@alamal.com\",\n  \"password\": \"Password123\",\n  \"role\": \"lab\",\n  \"buildNo\": \"10\",\n  \"floorNo\": \"1\",\n  \"address\": \"عمان، الأردن\"\n}"
             },
             "url": {
               "raw": "{{BASE_URL}}/api/auth/register",
@@ -172,139 +193,261 @@
       "name": "Doctor Endpoints",
       "item": [
         {
-          "name": "Create Order",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
+          "name": "Orders Management",
+          "item": [
+            {
+              "name": "Create Order",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"uid\": \"PATIENT001\",\n  \"patient_name\": \"محمد علي\",\n  \"age\": 35,\n  \"teeth_no\": 24,\n  \"sex\": \"ذكر\",\n  \"color\": \"A2\",\n  \"type\": \"تاج\",\n  \"description\": \"تاج للأسنان الأمامية\",\n  \"lab_id\": {{LAB_ID}},\n  \"paid\": 0,\n  \"price\": 500\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/orders",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "orders"]
+                }
               }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"UID\": \"PATIENT001\",\n  \"patientName\": \"محمد علي\",\n  \"age\": 35,\n  \"teethNo\": 24,\n  \"sex\": \"ذكر\",\n  \"color\": \"A2\",\n  \"type\": \"تاج\",\n  \"description\": \"تاج للأسنان الأمامية\",\n  \"lab_id\": \"LAB_UUID_HERE\",\n  \"paid\": 0\n}"
             },
-            "url": {
-              "raw": "{{BASE_URL}}/api/doctor/orders",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "doctor", "orders"]
-            }
-          }
-        },
-        {
-          "name": "Get Doctor Orders",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
+            {
+              "name": "Get Doctor Orders",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/orders",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "orders"]
+                }
               }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/api/doctor/orders",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "doctor", "orders"]
-            }
-          }
-        },
-        {
-          "name": "Get Doctor Stats",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
-              }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/api/doctor/orders/stats",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "doctor", "orders", "stats"]
-            }
-          }
-        },
-        {
-          "name": "Get Order By ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
-              }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/api/doctor/orders/{{ORDER_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "doctor", "orders", "{{ORDER_ID}}"]
-            }
-          }
-        },
-        {
-          "name": "Update Order",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"patientName\": \"محمد أحمد\",\n  \"description\": \"تاج خزفي للأسنان الأمامية\"\n}"
             },
-            "url": {
-              "raw": "{{BASE_URL}}/api/doctor/orders/{{ORDER_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "doctor", "orders", "{{ORDER_ID}}"]
+            {
+              "name": "Get Doctor Stats",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/orders/stats",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "orders", "stats"]
+                }
+              }
+            },
+            {
+              "name": "Get Orders By Date",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/orders/date?startDate=2024-01-01&endDate=2024-12-31",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "orders", "date"],
+                  "query": [
+                    {
+                      "key": "startDate",
+                      "value": "2024-01-01"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2024-12-31"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Orders By Status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/orders/status/{{STATUS}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "orders", "status", "{{STATUS}}"]
+                }
+              }
+            },
+            {
+              "name": "Get Order By ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/orders/{{ORDER_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "orders", "{{ORDER_ID}}"]
+                }
+              }
+            },
+            {
+              "name": "Update Order",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"patient_name\": \"محمد أحمد\",\n  \"description\": \"تاج خزفي للأسنان الأمامية\"\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/orders/{{ORDER_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "orders", "{{ORDER_ID}}"]
+                }
+              }
+            },
+            {
+              "name": "Send Order to Lab",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/orders/{{ORDER_ID}}/send-to-lab",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "orders", "{{ORDER_ID}}", "send-to-lab"]
+                }
+              }
+            },
+            {
+              "name": "Confirm Lab Ready",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/orders/{{ORDER_ID}}/confirm",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "orders", "{{ORDER_ID}}", "confirm"]
+                }
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Send Order to Lab",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
+          "name": "Labs Management",
+          "item": [
+            {
+              "name": "Get Doctor Labs",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/labs",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "labs"]
+                }
               }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/api/doctor/orders/{{ORDER_ID}}/send-to-lab",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "doctor", "orders", "{{ORDER_ID}}", "send-to-lab"]
-            }
-          }
-        },
-        {
-          "name": "Confirm Lab Ready",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
+            },
+            {
+              "name": "Get Doctor Lab By ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/labs/{{LAB_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "labs", "{{LAB_ID}}"]
+                }
               }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/api/doctor/orders/{{ORDER_ID}}/confirm",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "doctor", "orders", "{{ORDER_ID}}", "confirm"]
+            },
+            {
+              "name": "Get Doctor Lab Contracts",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/labs/{{LAB_ID}}/contracts",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "labs", "{{LAB_ID}}", "contracts"]
+                }
+              }
+            },
+            {
+              "name": "Get My Contract With Lab",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/doctor/labs/{{LAB_ID}}/contract",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "doctor", "labs", "{{LAB_ID}}", "contract"]
+                }
+              }
             }
-          }
+          ]
         }
       ]
     },
@@ -312,172 +455,446 @@
       "name": "Lab Endpoints",
       "item": [
         {
-          "name": "Get Lab Orders",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
+          "name": "Doctor Management",
+          "item": [
+            {
+              "name": "Add Doctor to Lab",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"doctorUID\": \"{{DOCTOR_UID}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/doctors",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "doctors"]
+                }
               }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/api/lab/orders",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "lab", "orders"]
-            }
-          }
-        },
-        {
-          "name": "Get Orders Stats",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
-              }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/api/lab/orders/stats",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "lab", "orders", "stats"]
-            }
-          }
-        },
-        {
-          "name": "Get Orders By Status",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
-              }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/api/lab/orders/status/{{STATUS}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "lab", "orders", "status", "{{STATUS}}"]
-            }
-          }
-        },
-        {
-          "name": "Get Order By ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
-              }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "lab", "orders", "{{ORDER_ID}}"]
-            }
-          }
-        },
-        {
-          "name": "Update Order Status",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"UNDERWAY(P)\"\n}"
             },
-            "url": {
-              "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/status",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "lab", "orders", "{{ORDER_ID}}", "status"]
+            {
+              "name": "Get Lab Doctors",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/doctors",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "doctors"]
+                }
+              }
+            },
+            {
+              "name": "Remove Doctor from Lab",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/doctors/{{DOCTOR_UID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "doctors", "{{DOCTOR_UID}}"]
+                }
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Update Order Price",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
+          "name": "Contract Management",
+          "item": [
+            {
+              "name": "Add Contract for Doctor",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"عقد الذهب\",\n  \"description\": \"أفضل الخدمات بأسعار مميزة\",\n  \"services\": [\n    {\n      \"name\": \"تاج زركون\",\n      \"price\": 150,\n      \"description\": \"تاج زركون بالكامل\"\n    },\n    {\n      \"name\": \"جسر خزفي\",\n      \"price\": 200,\n      \"description\": \"جسر من 3 وحدات\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/doctors/{{DOCTOR_ID}}/contracts",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "doctors", "{{DOCTOR_ID}}", "contracts"]
+                }
               }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"price\": 150.00\n}"
             },
-            "url": {
-              "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/price",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "lab", "orders", "{{ORDER_ID}}", "price"]
+            {
+              "name": "Get Doctor Contracts",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/doctors/{{DOCTOR_ID}}/contracts",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "doctors", "{{DOCTOR_ID}}", "contracts"]
+                }
+              }
+            },
+            {
+              "name": "Get Contract By ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/doctors/{{DOCTOR_ID}}/contracts/{{CONTRACT_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "doctors", "{{DOCTOR_ID}}", "contracts", "{{CONTRACT_ID}}"]
+                }
+              }
+            },
+            {
+              "name": "Update Contract",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"عقد البلاتين\",\n  \"description\": \"أعلى جودة بأفضل سعر\"\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/doctors/{{DOCTOR_ID}}/contracts/{{CONTRACT_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "doctors", "{{DOCTOR_ID}}", "contracts", "{{CONTRACT_ID}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Contract",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/doctors/{{DOCTOR_ID}}/contracts/{{CONTRACT_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "doctors", "{{DOCTOR_ID}}", "contracts", "{{CONTRACT_ID}}"]
+                }
+              }
+            },
+            {
+              "name": "Add Service to Contract",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"تيجان إيماكس\",\n  \"price\": 250,\n  \"description\": \"تيجان تجميلية من السيراميك\"\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/doctors/{{DOCTOR_ID}}/contracts/{{CONTRACT_ID}}/services",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "doctors", "{{DOCTOR_ID}}", "contracts", "{{CONTRACT_ID}}", "services"]
+                }
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Update Payment Status",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
+          "name": "Orders Management",
+          "item": [
+            {
+              "name": "Get Lab Orders",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders"]
+                }
               }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"paid\": 150.00\n}"
             },
-            "url": {
-              "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/payment",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "lab", "orders", "{{ORDER_ID}}", "payment"]
+            {
+              "name": "Get Orders Stats",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders/stats",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders", "stats"]
+                }
+              }
+            },
+            {
+              "name": "Get Orders By Status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders/status/{{STATUS}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders", "status", "{{STATUS}}"]
+                }
+              }
+            },
+            {
+              "name": "Get Order By ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders", "{{ORDER_ID}}"]
+                }
+              }
+            },
+            {
+              "name": "Update Order Status",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"UNDERWAY(P)\"\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/status",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders", "{{ORDER_ID}}", "status"]
+                }
+              }
+            },
+            {
+              "name": "Update Order Price",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"price\": 150.00\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/price",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders", "{{ORDER_ID}}", "price"]
+                }
+              }
+            },
+            {
+              "name": "Update Payment Status",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"paid\": 150.00\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/payment",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders", "{{ORDER_ID}}", "payment"]
+                }
+              }
+            },
+            {
+              "name": "Update Order Teeth Number",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"teethNumber\": 28\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/teeth",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders", "{{ORDER_ID}}", "teeth"]
+                }
+              }
+            },
+            {
+              "name": "Mark Order as Ready",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/mark-ready",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders", "{{ORDER_ID}}", "mark-ready"]
+                }
+              }
+            },
+            {
+              "name": "Upload Files",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"image\": \"https://example.com/image.jpg\",\n  \"image1\": \"https://example.com/image1.jpg\",\n  \"file\": \"https://example.com/document.pdf\"\n}"
+                },
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/files",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "orders", "{{ORDER_ID}}", "files"]
+                }
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Upload Files",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{TOKEN}}"
+          "name": "Billing",
+          "item": [
+            {
+              "name": "Get Billing Stats",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{TOKEN}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{BASE_URL}}/api/lab/billing/stats?startDate=2024-01-01&endDate=2024-12-31",
+                  "host": ["{{BASE_URL}}"],
+                  "path": ["api", "lab", "billing", "stats"],
+                  "query": [
+                    {
+                      "key": "startDate",
+                      "value": "2024-01-01"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2024-12-31"
+                    }
+                  ]
+                }
               }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"image\": \"https://example.com/image.jpg\",\n  \"image1\": \"https://example.com/image1.jpg\",\n  \"file\": \"https://example.com/document.pdf\"\n}"
-            },
-            "url": {
-              "raw": "{{BASE_URL}}/api/lab/orders/{{ORDER_ID}}/files",
-              "host": ["{{BASE_URL}}"],
-              "path": ["api", "lab", "orders", "{{ORDER_ID}}", "files"]
             }
-          }
+          ]
         }
       ]
     }
@@ -485,7 +902,7 @@
   "variable": [
     {
       "key": "BASE_URL",
-      "value": "http://localhost:3000",
+      "value": "http://localhost:5000",
       "type": "string"
     },
     {
@@ -495,6 +912,26 @@
     },
     {
       "key": "ORDER_ID",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "LAB_ID",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "DOCTOR_ID",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "DOCTOR_UID",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "CONTRACT_ID",
       "value": "",
       "type": "string"
     },

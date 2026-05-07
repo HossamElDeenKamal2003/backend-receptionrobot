@@ -96,6 +96,7 @@ class AuthHandler {
             }
 
             const { phone, password } = req.body;
+        console.log("phone: ", phone, "pass: ", password);
 
             if (!phone || !password) {
                 return res.status(400).json({
@@ -326,55 +327,46 @@ class AuthHandler {
         }
     }
 
-    async changePassword(req, res) {
-        try {
-            const userId = req.user.id;
-            const { oldPassword, newPassword } = req.body;
 
-            if (!oldPassword || !newPassword) {
-                return res.status(400).json({
-                    success: false,
-                    message: {
-                        ar: "كلمة المرور القديمة والجديدة مطلوبة",
-                        en: "Old and new passwords are required"
-                    }
-                });
-            }
 
-            const result = await AuthService.changePassword(userId, oldPassword, newPassword);
+async changePassword(req, res) {
+    try {
+        const { phone, newPassword } = req.body;
 
-            return res.status(200).json({
-                success: true,
-                message: {
-                    ar: "تم تغيير كلمة المرور بنجاح",
-                    en: "Password changed successfully"
-                }
-            });
-
-        } catch (error) {
-            console.error("Change password error:", error);
-            
-            if (error.message === "Invalid old password") {
-                return res.status(401).json({
-                    success: false,
-                    message: {
-                        ar: "كلمة المرور القديمة غير صحيحة",
-                        en: "Invalid old password"
-                    },
-                    error: error.message
-                });
-            }
-
-            return res.status(500).json({
+        if (!phone || !newPassword) {
+            return res.status(400).json({
                 success: false,
                 message: {
-                    ar: "حدث خطأ أثناء تغيير كلمة المرور",
-                    en: "Error changing password"
-                },
-                error: error.message
+                    ar: "رقم الهاتف وكلمة المرور الجديدة مطلوبة",
+                    en: "Phone and new password are required"
+                }
             });
         }
+
+        await AuthService.changePassword(phone, newPassword);
+
+        return res.status(200).json({
+            success: true,
+            message: {
+                ar: "تم تغيير كلمة المرور بنجاح",
+                en: "Password changed successfully"
+            }
+        });
+
+    } catch (error) {
+        console.error("Change password error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: {
+                ar: "حدث خطأ أثناء تغيير كلمة المرور",
+                en: "Error changing password"
+            },
+            error: error.message
+        });
     }
+}
+
 }
 
 module.exports = new AuthHandler();

@@ -6,16 +6,14 @@ const Order = sequelize.define(
   {
     id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,  // ✅ استخدام autoIncrement بدل UUIDV4
+      autoIncrement: true,
       primaryKey: true,
     },
-
     uid: {
       type: DataTypes.STRING(255),
       allowNull: false,
       field: 'uid',
     },
-
     patient_name: {
       type: DataTypes.STRING(255),
       allowNull: false,
@@ -24,49 +22,41 @@ const Order = sequelize.define(
         len: [2, 255],
       },
     },
-
     age: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: 'age',
     },
-
     teeth_no: {
       type: DataTypes.INTEGER,
       allowNull: false,
       field: 'teeth_no',
     },
-
     sex: {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: 'sex',
     },
-
     color: {
       type: DataTypes.STRING(50),
       allowNull: true,
       field: 'color',
     },
-
     type: {
       type: DataTypes.STRING(255),
       allowNull: false,
       field: 'type',
     },
-
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
       field: 'description',
     },
-
     screen: {
       type: DataTypes.TEXT,
       allowNull: true,
       field: 'screen',
     },
-
     status: {
       type: DataTypes.ENUM(
         "DocReady(P)",
@@ -85,50 +75,42 @@ const Order = sequelize.define(
       defaultValue: "DocReady(P)",
       field: 'status',
     },
-
     price: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
       field: 'price',
     },
-
     paid: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 0,
       field: 'paid',
     },
-
     lab_id: {
       type: DataTypes.TEXT,
       allowNull: false,
       field: 'lab_id',
     },
-
     doc_id: {
       type: DataTypes.TEXT,
       allowNull: false,
       field: 'doc_id',
     },
-
     date: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
       field: 'date',
     },
-
     prova: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       field: 'prova',
     },
-
     doc_ready: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       field: 'doc_ready',
     },
-
     image: {
       type: DataTypes.TEXT,
       field: 'image',

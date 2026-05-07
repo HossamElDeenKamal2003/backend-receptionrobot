@@ -1,5 +1,4 @@
-// models/users.js
-const { DataTypes } = require('sequelize');
+const { DataTypes, TEXT } = require('sequelize');
 const { sequelize } = require('../../config/dbConfig');
 
 const User = sequelize.define('User', {
@@ -29,11 +28,11 @@ const User = sequelize.define('User', {
         unique: true,
         allowNull: false
     },
-    buildno: {  // خلي بالك هنا build_no مش buildNo
+    buildno: {
         type: DataTypes.STRING(100),
         field: 'buildno'
     },
-    floorno: {  // و هنا floor_no مش floorNo
+    floorno: {
         type: DataTypes.STRING(100),
         field: 'floorno'
     },
@@ -81,10 +80,18 @@ const User = sequelize.define('User', {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         field: 'updated_at'
+    },
+    token: {
+        type: DataTypes.TEXT,
+        field: 'token'
+    },
+    platform: {
+        type: DataTypes.TEXT,
+        field: 'platform'
     }
 }, {
     tableName: 'users',
-    timestamps: false,  // لأننا بنستخدم created_at و updated_at يدوي
+    timestamps: false,
     underscored: false
 });
 

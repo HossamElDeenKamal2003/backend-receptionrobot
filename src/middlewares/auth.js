@@ -94,7 +94,6 @@ const labMiddleware = (req, res, next) => {
     next();
 };
 
-// Middleware للتحقق من دور الدكتور (Doctor)
 const doctorMiddleware = (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({
@@ -105,13 +104,14 @@ const doctorMiddleware = (req, res, next) => {
             }
         });
     }
-    
-    if (req.user.role !== 'doctor') {
+
+    // ✅ استخدم && بدل ||
+    if (req.user.role !== 'doctor' && req.user.role !== 'lab') {
         return res.status(403).json({
             success: false,
             message: {
-                ar: "غير مصرح - هذه الخدمة مخصصة للأطباء فقط",
-                en: "Forbidden - This service is only for doctors"
+                ar: "غير مصرح - هذه الخدمة مخصصة للأطباء والمعامل فقط",
+                en: "Forbidden - This service is only for doctors and labs"
             }
         });
     }

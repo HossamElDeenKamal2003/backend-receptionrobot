@@ -236,8 +236,8 @@ class LabController {
             const labId = req.user.id;
             const { orderId } = req.params;
             const { price } = req.body;
-            
-            const result = await labService.updateOrderPrice(orderId, labId, price);
+            const { paid } = req.body;
+            const result = await labService.updateOrderPrice(orderId, labId, price, paid);
             res.status(200).json(result);
         } catch (error) {
             res.status(500).json({

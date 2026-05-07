@@ -11,7 +11,7 @@ router.post("/login", AuthHandler.login);
 // Protected routes
 router.get("/profile", authMiddleware, AuthHandler.getUserProfile);
 router.put("/profile", authMiddleware, AuthHandler.updateUser);
-router.put("/change-password", authMiddleware, AuthHandler.changePassword);
+router.put("/change-password", AuthHandler.changePassword);
 router.delete("/profile", authMiddleware, AuthHandler.deleteUser);
 
 // Admin routes

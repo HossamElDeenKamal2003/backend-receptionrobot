@@ -78,44 +78,116 @@ class LabService {
     }
 
     // جلب أطباء المعمل
-    async getLabDoctors(labId) {
-        try {
-            const lab = await User.findOne({ where: { id: labId, role: 'lab' } });
-            
-            if (!lab) {
-                throw {
-                    success: false,
-                    message: { ar: "المعمل غير موجود", en: "Lab not found" }
-                };
-            }
+async getLabDoctors(labId) {
+    try {
+        // جلب المعمل
+        const lab = await User.findOne({ 
+            where: { id: labId, role: 'lab' } 
+        });
+        
+        if (!lab) {
+            throw {
+                success: false,
+                message: { ar: "المعمل غير موجود", en: "Lab not found" }
+            };
+        }
 
-            let doctorIds = [];
-            if (lab.docsId) {
-                try {
+        // استخراج الـ doctorIds من docsId
+        let doctorIds = [];
+        if (lab.docsId) {
+            try {
+                // لو كانت string array زي "[9,9,7,9]"
+                if (typeof lab.docsId === 'string' && lab.docsId.startsWith('[')) {
                     doctorIds = JSON.parse(lab.docsId);
-                } catch (e) {
+                } 
+                // لو كانت comma separated string
+                else if (typeof lab.docsId === 'string') {
                     doctorIds = lab.docsId.split(',').filter(Boolean);
                 }
+                // لو كانت array
+                else if (Array.isArray(lab.docsId)) {
+                    doctorIds = lab.docsId;
+                }
+                
+                // إزالة التكرارات وتحويل لأرقام
+                doctorIds = [...new Set(doctorIds.map(id => parseInt(id)))];
+                
+            } catch (e) {
+                console.error("Error parsing docsId:", e);
+                doctorIds = [];
             }
+        }
 
-            const doctors = await User.findAll({
-                where: {
-                    id: doctorIds,
-                    role: 'doctor'
-                },
-                attributes: ['id', 'uid', 'username', 'phone', 'email', 'address']
-            });
-
+        if (doctorIds.length === 0) {
             return {
                 success: true,
-                message: { ar: "تم جلب الأطباء بنجاح", en: "Doctors fetched successfully" },
-                data: doctors
+                message: { ar: "لا يوجد أطباء", en: "No doctors found" },
+                data: []
             };
-        } catch (error) {
-            console.log(error);
-            throw error;
         }
+
+        // جلب الأطباء
+        const doctors = await User.findAll({
+            where: {
+                id: doctorIds,
+                role: 'doctor'
+            },
+            attributes: ['id', 'uid', 'username', 'phone', 'email', 'address', 'buildno', 'floorno', 'labContract']
+        });
+
+        // معالجة البيانات وإضافة العقود
+        const doctorsWithContracts = doctors.map(doctor => {
+            let contracts = [];
+            
+            // استخراج العقود من labContract
+            if (doctor.labContract) {
+                try {
+                    // لو كانت string
+                    if (typeof doctor.labContract === 'string') {
+                        contracts = JSON.parse(doctor.labContract);
+                    } 
+                    // لو كانت array
+                    else if (Array.isArray(doctor.labContract)) {
+                        contracts = doctor.labContract;
+                    }
+                    
+                    // فلترة العقود الخاصة بهذا المعمل فقط
+                    contracts = contracts.filter(contract => 
+                        contract.labId === labId || 
+                        contract.labId === parseInt(labId) ||
+                        contract.labId === String(labId)
+                    );
+                    
+                } catch (e) {
+                    console.error(`Error parsing contracts for doctor ${doctor.id}:`, e);
+                    contracts = [];
+                }
+            }
+            
+            return {
+                id: doctor.id,
+                uid: doctor.uid,
+                name: doctor.username,
+                username: doctor.username,
+                phone: doctor.phone,
+                email: doctor.email,
+                address: doctor.address,
+                buildNo: doctor.buildno,
+                floorNo: doctor.floorno,
+                contracts: contracts || []
+            };
+        });
+
+        return {
+            success: true,
+            message: { ar: "تم جلب الأطباء بنجاح", en: "Doctors fetched successfully" },
+            data: doctorsWithContracts
+        };
+    } catch (error) {
+        console.error("Error in getLabDoctors:", error);
+        throw error;
     }
+}
 
     // جلب طلب معين
     async getOrderById(orderId, labId) {
@@ -481,9 +553,9 @@ async getContractById(labId, doctorId, contractId) {
 // إزالة دكتور من المعمل
 async removeDoctorFromLab(labId, doctorUID) {
     try {
+        // جلب المعمل
         const lab = await User.findOne({ where: { id: labId, role: 'lab' } });
-        const doctor = await User.findOne({ where: { uid: doctorUID, role: 'doctor' } });
-
+        
         if (!lab) {
             throw {
                 success: false,
@@ -491,6 +563,9 @@ async removeDoctorFromLab(labId, doctorUID) {
             };
         }
 
+        // جلب الطبيب - البحث بالـ uid
+        const doctor = await User.findOne({ where: { uid: doctorUID, role: 'doctor' } });
+        
         if (!doctor) {
             throw {
                 success: false,
@@ -498,17 +573,33 @@ async removeDoctorFromLab(labId, doctorUID) {
             };
         }
 
+        // استخراج قائمة أطباء المعمل من docsId
         let docsArray = [];
         if (lab.docsId) {
             try {
-                docsArray = JSON.parse(lab.docsId);
+                // إذا كانت string array
+                if (typeof lab.docsId === 'string' && lab.docsId.startsWith('[')) {
+                    docsArray = JSON.parse(lab.docsId);
+                } 
+                // إذا كانت comma separated string
+                else if (typeof lab.docsId === 'string') {
+                    docsArray = lab.docsId.split(',').filter(Boolean);
+                }
+                // إذا كانت array
+                else if (Array.isArray(lab.docsId)) {
+                    docsArray = lab.docsId;
+                }
             } catch (e) {
-                docsArray = lab.docsId.split(',').filter(Boolean);
+                console.error("Error parsing docsId:", e);
+                docsArray = [];
             }
         }
 
+        // تحويل الأرقام لـ string للمقارنة
         const doctorIdStr = doctor.id.toString();
-        if (!docsArray.includes(doctorIdStr)) {
+        
+        // التحقق من وجود الطبيب في قائمة المعمل
+        if (!docsArray.some(id => id.toString() === doctorIdStr)) {
             throw {
                 success: false,
                 message: { ar: "الطبيب غير موجود في قائمة أطباء المعمل", en: "Doctor not found in lab" }
@@ -516,20 +607,39 @@ async removeDoctorFromLab(labId, doctorUID) {
         }
 
         // إزالة الدكتور من قائمة الأطباء
-        docsArray = docsArray.filter(id => id.toString() !== doctorIdStr);
-        lab.docsId = JSON.stringify(docsArray);
+        const updatedDocsArray = docsArray.filter(id => id.toString() !== doctorIdStr);
+        lab.docsId = JSON.stringify(updatedDocsArray);
         await lab.save();
 
         // إزالة عقود المعمل من عند الدكتور
         let doctorContracts = [];
         if (doctor.labContract) {
             try {
-                doctorContracts = JSON.parse(doctor.labContract);
-                doctorContracts = doctorContracts.filter(c => c.labId != labId);
+                // parsing الـ labContract
+                if (typeof doctor.labContract === 'string') {
+                    doctorContracts = JSON.parse(doctor.labContract);
+                } else if (Array.isArray(doctor.labContract)) {
+                    doctorContracts = doctor.labContract;
+                }
+                
+                // فلترة العقود لإزالة عقود هذا المعمل فقط
+                const originalCount = doctorContracts.length;
+                doctorContracts = doctorContracts.filter(contract => {
+                    const contractLabId = contract.labId || contract.lab_id;
+                    return contractLabId != labId && contractLabId != parseInt(labId);
+                });
+                
+                console.log(`Removed ${originalCount - doctorContracts.length} contracts for lab ${labId}`);
+                
+                // حفظ العقود المتبقية
                 doctor.labContract = JSON.stringify(doctorContracts);
                 await doctor.save();
+                
             } catch (e) {
-                console.log("Error parsing doctor contracts:", e);
+                console.error("Error parsing doctor contracts:", e);
+                // لو في error، نخلي labContract array فاضي
+                doctor.labContract = JSON.stringify([]);
+                await doctor.save();
             }
         }
 
@@ -540,22 +650,24 @@ async removeDoctorFromLab(labId, doctorUID) {
                 lab: {
                     id: lab.id,
                     name: lab.username,
-                    doctors: docsArray
+                    doctorsCount: updatedDocsArray.length,
+                    doctors: updatedDocsArray
                 },
                 removedDoctor: {
                     id: doctor.id,
                     uid: doctor.uid,
-                    username: doctor.username
+                    username: doctor.username,
+                    phone: doctor.phone,
+                    email: doctor.email
                 }
             }
         };
     } catch (error) {
-        console.log(error);
+        console.error("Error in removeDoctorFromLab:", error);
         throw error;
     }
 }
 
-// تحديث سعر الطلب (مع rest)
 async updateOrderPayment(orderId, labId, paid) {
     try {
         const order = await Order.findOne({
@@ -569,16 +681,30 @@ async updateOrderPayment(orderId, labId, paid) {
             };
         }
 
-        if (paid > order.price) {
+        paid = Number(paid);
+
+        if (paid > Number(order.price)) {
             throw {
                 success: false,
                 message: { ar: "المبلغ المدفوع لا يمكن أن يتجاوز السعر الإجمالي", en: "Paid amount cannot exceed total price" }
             };
         }
 
-        const rest = order.price - paid;
-        await order.update({ paid, rest });
-        
+        const rest = Number(order.price) - paid;
+
+        await Order.update(
+    { paid: Number(paid), rest: Number(order.price) - Number(paid) },
+    { where: { id: orderId, lab_id: labId } }
+);
+
+console.log({
+    orderId,
+    labId,
+    orderLabId: order.labId
+});
+
+        await order.reload();
+
         return {
             success: true,
             message: { ar: "تم تحديث حالة الدفع بنجاح", en: "Payment status updated successfully" },
@@ -588,6 +714,7 @@ async updateOrderPayment(orderId, labId, paid) {
         throw error;
     }
 }
+
 
 // تحديد الطلب كـ Lab Ready
 async markOrderAsReady(orderId, labId) {
@@ -604,27 +731,42 @@ async markOrderAsReady(orderId, labId) {
         }
 
         let newStatus = order.status;
-        if (order.status.includes('(P)')) {
-            newStatus = order.status.replace('(P)', '(F)');
-            newStatus = newStatus.replace('UNDERWAY', 'LabReady');
-        } else if (order.status.includes('(F)')) {
-            newStatus = order.status.replace('(F)', '(F)');
-            newStatus = newStatus.replace('UNDERWAY', 'LabReady');
-        } else {
+        
+        // معالجة الحالات المختلفة
+        if (order.status === 'DocReady(P)') {
+            newStatus = 'LabReady(P)';
+        } 
+        else if (order.status === 'DocReady(F)') {
+            newStatus = 'LabReady(F)';
+        }
+        else if (order.status === 'UNDERWAY(P)') {
+            newStatus = 'LabReady(P)';
+        }
+        else if (order.status === 'UNDERWAY(F)') {
+            newStatus = 'LabReady(F)';
+        }
+        else {
             throw {
                 success: false,
-                message: { ar: "لا يمكن تحديث حالة هذا الطلب", en: "Cannot update this order status" }
+                message: { ar: "لا يمكن تحديث حالة هذا الطلب - الحالة الحالية: " + order.status, en: "Cannot update this order status - Current status: " + order.status }
             };
         }
 
+        // تحديث الحالة في قاعدة البيانات
         await order.update({ status: newStatus });
+        
+        // إعادة تحميل البيانات بعد التحديث
+        const updatedOrder = await Order.findOne({
+            where: { id: orderId, lab_id: labId }
+        });
         
         return {
             success: true,
             message: { ar: "تم تحديث الطلب كجاهز من المعمل", en: "Order marked as Lab Ready" },
-            data: order
+            data: updatedOrder
         };
     } catch (error) {
+        console.error("Error in markOrderAsReady:", error);
         throw error;
     }
 }
@@ -741,30 +883,41 @@ async updateOrderTeethNumber(orderId, labId, teethNumber) {
         throw error;
     }
 }
-    async updateOrderPrice(orderId, labId, price) {
-        try {
-            const order = await Order.findOne({
-                where: { id: orderId, lab_id: labId }
-            });
-            
-            if (!order) {
-                throw {
-                    success: false,
-                    message: { ar: "الطلب غير موجود", en: "Order not found" }
-                };
+async updateOrderPrice(orderId, labId, price, paid) {
+    try {
+        const order = await Order.findOne({
+            where: {
+                id: orderId,
+                lab_id: labId,
             }
+        });
 
-            await order.update({ price });
-            
-            return {
-                success: true,
-                message: { ar: "تم تحديث سعر الطلب بنجاح", en: "Order price updated successfully" },
-                data: order
+        if (!order) {
+            throw {
+                success: false,
+                message: { ar: "الطلب غير موجود", en: "Order not found" }
             };
-        } catch (error) {
-            throw error;
         }
+
+        // تحويل القيم لـ number
+        order.paid = Number(paid);
+        
+        console.log(labId, "then: ", price);
+        
+        await order.update({ 
+            price: Number(price),
+            paid: Number(paid)
+        });
+        
+        return {
+            success: true,
+            message: { ar: "تم تحديث سعر الطلب بنجاح", en: "Order price updated successfully" },
+            data: order
+        };
+    } catch (error) {
+        throw error;
     }
+}
 
     async uploadOrderFiles(orderId, labId, files) {
         try {

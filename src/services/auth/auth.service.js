@@ -86,6 +86,8 @@ async createUser(data) {
         email,
         buildno: buildNo,
         link,
+        token,
+        platform,
         floorno: floorNo,
         address,
         password: hashedPassword,
@@ -123,6 +125,7 @@ async generateUniqueUid() {
         const user = await User.findOne({
             where: { phone }
         });
+
 
         if (!user) {
             throw new Error("Invalid phone or password");
@@ -212,24 +215,22 @@ async generateUniqueUid() {
         };
     }
 
-    async changePassword(userId, oldPassword, newPassword) {
-        const user = await User.findByPk(userId);
-        
-        if (!user) {
-            throw new Error("User not found");
-        }
+    async changePassword(phone, newPassword) {
+    const user = await User.findOne({
+        where: { phone }
+    });
 
-        const isMatch = await bcrypt.compare(oldPassword, user.password);
-        
-        if (!isMatch) {
-            throw new Error("Invalid old password");
-        }
-
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        await user.update({ password: hashedNewPassword });
-        
-        return true;
+    if (!user) {
+        throw new Error("User not found");
     }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await user.update({ password: hashedNewPassword });
+
+    return true;
+}
+
 }
 
 module.exports = new AuthService();

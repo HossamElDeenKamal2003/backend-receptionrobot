@@ -1,9 +1,9 @@
 const Order = require("../../models/order");
 const User = require("../../models/users");
-
+const NotificationService = require('../notifications/notificationService');
 class OrderService {
     // إنشاء طلب جديد من الدكتور
-    async createOrder(orderData, doctorId) {
+       async createOrder(orderData, doctorId) {
         try {
             // التحقق من وجود المعمل
             const lab = await User.findOne({
@@ -31,9 +31,41 @@ class OrderService {
                 paid: orderData.paid || 0,
                 lab_id: orderData.lab_id,
                 doc_id: doctorId,
-                status: "DocReady(P)",
+                status: orderData.status || "DocReady(P)",
+                prova: orderData.prova || "default_prova",
                 doc_ready: true
             });
+            
+            console.log("Created order:", order.toJSON());
+            
+            // ✅ استخدام orderData.lab_id بدلاً من lab_id
+            const labId = orderData.lab_id;
+            
+            // إرسال إشعار للتوصيل
+            if (global.io) {
+                global.io.emit("new-delivery-order", {
+                    success: true,
+                    message: { ar: "تم إنشاء الطلب بنجاح", en: "Order created successfully" },
+                    data: order
+                });
+            }
+            
+            // ✅ التصحيح هنا: استخدم labId المتغير الصحيح
+            if (global.io && labId) {
+                global.io.emit(`new-lab-order/${labId}`, {
+                    success: true,
+                    message: { ar: "تم إنشاء الطلب بنجاح", en: "Order created successfully" },
+                    data: order
+                });
+                console.log(`✅ Event emitted: new-lab-order/${labId}`);
+            } else {
+                console.log("❌ global.io not available or labId missing:", { 
+                    hasGlobalIo: !!global.io, 
+                    labId: labId 
+                });
+            }
+            await NotificationService.notifyNewOrder(orderData.lab_id, order);
+
             
             return {
                 success: true,
@@ -41,7 +73,7 @@ class OrderService {
                 data: order
             };
         } catch (error) {
-            console.log(error);
+            console.log("Error in createOrder:", error);
             throw error;
         }
     }
@@ -67,9 +99,16 @@ class OrderService {
     // جلب طلب معين للدكتور
     async getDoctorOrderById(orderId, doctorId) {
         try {
-            const order = await Order.findOne({
+            let order = await Order.findOne({
                 where: { id: orderId, doc_id: doctorId }
             });
+            
+            if(!order){
+                order = await Order.findOne({
+                    where: { id: orderId, lab_id: doctorId }
+                }); 
+            }
+
             
             if (!order) {
                 throw {
@@ -91,9 +130,15 @@ class OrderService {
     // تحديث الطلب من قبل الدكتور
     async updateDoctorOrder(orderId, doctorId, updateData) {
         try {
-            const order = await Order.findOne({
+            let order = await Order.findOne({
                 where: { id: orderId, doc_id: doctorId }
             });
+
+            if(!order){
+                order = await Order.findOne({
+                    where: { id: orderId, lab_id: doctorId }
+                })
+            }
             
             if (!order) {
                 throw {
@@ -103,11 +148,11 @@ class OrderService {
             }
 
             // لا يمكن تعديل الطلب إذا كان في حالة متقدمة
-            const blockedStatuses = ['LabReady(P)', 'LabReady(F)', 'OTW_DOC(P)', 'OTW_DOC(F)', 'END(P)', 'END(F)'];
+            const blockedStatuses = ['LabReady(P)', 'LabReady(F)', 'END(P)', 'END(F)'];
             if (blockedStatuses.includes(order.status)) {
                 throw {
                     success: false,
-                    message: { ar: "لا يمكن تعديل الطلب في هذه المرحلة", en: "Cannot edit order at this stage" }
+                    message: { ar: "لا يمكن تعديل الطلب في هذه ا ordeلمرحلة", en: "Cannot edit order at this stage" }
                 };
             }
 
