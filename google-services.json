@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "614223021726",
+    "project_id": "jordensouq",
+    "storage_bucket": "jordensouq.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614223021726:android:115b145dd7f3eac3739d8f",
+        "android_client_info": {
+          "package_name": "com.anonymous.nativerr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHqXNWlVKwONWWpoIxZBVIprmIaOKnRkE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614223021726:android:d95c64029d47b627739d8f",
+        "android_client_info": {
+          "package_name": "com.shehab.jordensouq"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHqXNWlVKwONWWpoIxZBVIprmIaOKnRkE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,24 +1,19 @@
-const { Sequelize } = require('sequelize');
+// test.js
+const { JWT } = require('google-auth-library');
 
-const sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    "1234",
-    {
-        host: process.env.DB_HOST || 'localhost',
-        port: process.env.DB_PORT || 5432,
-        dialect: 'postgres',
-        logging: false,
-    }
-);
+async function test() {
+    const client = new JWT({
+        keyFile: '/home/hossameldeenkamal/Desktop/backend.receptionRobot/jordensouq-7dbf8fb0ac14.json', // غير المسار
+        scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
+    });
 
-(async () => {
     try {
-        await sequelize.authenticate();
-        console.log('✅ Database is connected successfully');
-    } catch (err) {
-        console.error('❌ DB connection failed:', err);
-    } finally {
-        await sequelize.close();
+        const token = await client.authorize();
+        console.log('✅ Service Account شغال!');
+        console.log('Access Token:', token.access_token.slice(0, 50) + '...');
+    } catch (error) {
+        console.error('❌ Service Account مش شغال:', error.message);
     }
-})();
+}
+
+test();

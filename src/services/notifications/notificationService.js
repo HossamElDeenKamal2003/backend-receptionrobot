@@ -1,8 +1,7 @@
-const fetch = require('node-fetch');
+const axios = require('axios');
 const PushToken = require('./PushToken');
 
 class NotificationService {
-    // إرسال push notification
     static async sendPushNotification(expoPushToken, title, body, data = {}) {
         if (!expoPushToken) return null;
 
@@ -16,56 +15,56 @@ class NotificationService {
         };
 
         try {
-            const response = await fetch('https://exp.host/--/api/v2/push/send', {
-                method: 'POST',
+            const response = await axios.post('https://exp.host/--/api/v2/push/send', message, {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(message),
             });
-
-            const result = await response.json();
-            return result;
+            
+            console.log('✅ Push notification sent via Expo:', response.data);
+            return response.data;
         } catch (error) {
-            console.error('Error sending push notification:', error);
+            console.error('❌ Error sending push notification:', error.response?.data || error.message);
             return null;
         }
     }
 
-    // إرسال إشعار لمعمل عند طلب جديد
     static async notifyNewOrder(labId, order) {
-        const pushToken = await PushToken.getByUserId(labId);
-        
-        if (pushToken && pushToken.token) {
-            await this.sendPushNotification(
-                pushToken.token,
-                '🦷 طلب جديد!',
-                `طلب من المريض: ${order.patient_name}`,
-                {
-                    orderId: order.id,
-                    type: 'new-order',
-                    screen: 'order-details'
-                }
-            );
+        try {
+            const pushToken = await PushToken.getByUserId(labId);
+            if (pushToken && pushToken.token) {
+                console.log(`📱 Sending Expo notification to lab ${labId}`);
+                await this.sendPushNotification(
+                    pushToken.token,
+                    '🦷 طلب جديد!',
+                    `طلب من المريض: ${order.patient_name}`,
+                    { orderId: order.id.toString(), type: 'new-order' }
+                );
+            } else {
+                console.log(`⚠️ No push token found for lab ${labId}`);
+            }
+        } catch (error) {
+            console.error('Error in notifyNewOrder:', error.message);
         }
     }
 
-    // إرسال إشعار لدكتور عند تحديث الطلب
     static async notifyOrderUpdate(doctorId, order, statusText) {
-        const pushToken = await PushToken.getByUserId(doctorId);
-        
-        if (pushToken && pushToken.token) {
-            await this.sendPushNotification(
-                pushToken.token,
-                '📦 تحديث الطلب',
-                `الطلب #${order.uid || order.id}: ${statusText}`,
-                {
-                    orderId: order.id,
-                    type: 'order-update',
-                    screen: 'order-details'
-                }
-            );
+        try {
+            const pushToken = await PushToken.getByUserId(doctorId);
+            if (pushToken && pushToken.token) {
+                console.log(`📱 Sending Expo notification to doctor ${doctorId}`);
+                await this.sendPushNotification(
+                    pushToken.token,
+                    '📦 تحديث الطلب',
+                    `الطلب #${order.uid || order.id}: ${statusText}`,
+                    { orderId: order.id.toString(), type: 'order-update' }
+                );
+            } else {
+                console.log(`⚠️ No push token found for doctor ${doctorId}`);
+            }
+        } catch (error) {
+            console.error('Error in notifyOrderUpdate:', error.message);
         }
     }
 }

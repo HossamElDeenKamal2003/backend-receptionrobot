@@ -3,6 +3,7 @@ const router = express.Router();
 const PushToken = require('./PushToken');
 const { labMiddleware } = require('../../middlewares/auth');
 const { authenticate } = require('../../middlewares//notification');
+const User = require('../../models/users');
 // حفظ push token
 router.post('/push-token', authenticate, async (req, res) => {
     try {

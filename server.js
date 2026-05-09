@@ -99,12 +99,10 @@ app.get("/about", (req, res) => {
 
         const PORT = process.env.PORT || 5000;
 
-        server.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
-            console.log(`📍 http://localhost:${PORT}`);
-            console.log(`📍 Auth API: http://localhost:${PORT}/api/auth`);
-        });
-
+        server.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📍 http://0.0.0.0:${PORT}`);
+});
     } catch (err) {
         console.error("Failed to connect DB:", err);
         process.exit(1);
